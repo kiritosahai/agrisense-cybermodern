@@ -265,7 +265,7 @@ export default function Dashboard() {
           {/* Header */}
           <div className="h-16 border-b border-border bg-card/70 backdrop-blur px-6 flex items-center justify-between">
             <div className="flex flex-col">
-              <h1 className="text-xl font-bold tracking-tight">agri-spectra Dashboard</h1>
+              <h1 className="text-xl font-bold tracking-tight">Agri-Spectra Dashboard</h1>
               <span className="text-[11px] text-muted-foreground">
                 Welcome, {user?.name?.split?.(" ")?.[0] || "Grower"}
               </span>
