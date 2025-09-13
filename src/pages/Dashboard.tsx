@@ -263,10 +263,10 @@ export default function Dashboard() {
           )}
 
           {/* Dashboard Content */}
-          <div className="flex-1 flex">
+          <div className="flex-1 flex flex-col lg:flex-row">
             {/* Map Canvas */}
             <motion.div 
-              className="flex-1 relative"
+              className="flex-1 relative min-h-[260px] lg:min-h-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
@@ -276,18 +276,18 @@ export default function Dashboard() {
 
             {/* Right Panel */}
             <motion.div 
-              className="w-96 border-l border-border bg-card flex flex-col"
+              className="w-full lg:w-96 lg:border-l border-t lg:border-t-0 border-border bg-card flex flex-col"
               initial={{ x: 100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               {/* Time Series Panel */}
-              <div className="flex-1 border-b border-border">
+              <div className="lg:flex-1 border-b border-border">
                 <TimeSeriesPanel selectedField={selectedField} />
               </div>
 
               {/* Alerts Panel */}
-              <div className="h-80">
+              <div className="h-auto lg:h-80">
                 <AlertsPanel selectedField={selectedField} />
               </div>
             </motion.div>
