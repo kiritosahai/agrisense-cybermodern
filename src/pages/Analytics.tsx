@@ -60,6 +60,21 @@ export default function AnalyticsPage() {
     };
   });
 
+  // Fake 7-day trend data (daily aggregates)
+  const days: Array<string> = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const fake7dData = days.map((d, i) => {
+    const base = i + 1;
+    const t = 70 + 5 * Math.sin((Math.PI * base) / 3.5) + noise(base, 23) * 2; // °F
+    const hum = 60 + 12 * Math.sin((Math.PI * base) / 3.2) + noise(base, 29) * 4; // %
+    const wind = 7 + 4 * Math.abs(Math.sin((Math.PI * base) / 3.7)) + noise(base, 31) * 1.5; // mph
+    return {
+      day: d,
+      temperatureAvg: Math.round(t),
+      humidityAvg: Math.max(0, Math.min(100, Math.round(hum))),
+      windAvg: Math.round(wind * 10) / 10,
+    };
+  });
+
   const latest = fake24hData[fake24hData.length - 1];
   const metricCards = [
     {
@@ -165,6 +180,35 @@ export default function AnalyticsPage() {
                     <Line type="monotone" dataKey="temperature" name="Temperature (°F)" stroke="#6b8afd" strokeWidth={2} dot={{ r: 2 }} />
                     <Line type="monotone" dataKey="humidity" name="Humidity (%)" stroke="#34d399" strokeWidth={2} dot={{ r: 2 }} />
                     <Line type="monotone" dataKey="wind" name="Wind (mph)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 2 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* 7-Day Trend */}
+          <div className="px-4 sm:px-6 pb-6 max-w-7xl mx-auto">
+            <Card className="border-border/70 bg-card/70 backdrop-blur rounded-xl shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">7-Day Trend</CardTitle>
+              </CardHeader>
+              <CardContent className="h-64 md:h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={fake7dData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                      }}
+                    />
+                    <Legend />
+                    <Line type="monotone" dataKey="temperatureAvg" name="Avg Temperature (°F)" stroke="#6b8afd" strokeWidth={2} dot={{ r: 2 }} />
+                    <Line type="monotone" dataKey="humidityAvg" name="Avg Humidity (%)" stroke="#34d399" strokeWidth={2} dot={{ r: 2 }} />
+                    <Line type="monotone" dataKey="windAvg" name="Avg Wind (mph)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 2 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
