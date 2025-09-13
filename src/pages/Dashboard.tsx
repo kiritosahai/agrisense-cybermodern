@@ -61,7 +61,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background text-foreground">
       <div className="flex h-screen">
         {/* Sidebar */}
         <Sidebar 
@@ -75,9 +75,14 @@ export default function Dashboard() {
           sidebarCollapsed ? 'ml-16' : 'ml-64'
         }`}>
           {/* Header */}
-          <div className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
+          <div className="h-16 sticky top-0 z-40 border-b border-border bg-card/70 backdrop-blur px-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <h1 className="text-xl font-bold tracking-tight">AgriSense Dashboard</h1>
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold tracking-tight">AgriSense Dashboard</h1>
+                <span className="text-[11px] text-muted-foreground hidden sm:block">
+                  Welcome, {user?.name?.split?.(" ")?.[0] || "Grower"}
+                </span>
+              </div>
               {fields && fields.length > 0 && (
                 <FieldSelector
                   fields={fields}
@@ -115,7 +120,7 @@ export default function Dashboard() {
           {/* Metrics Row */}
           {selectedField && (
             <div className="px-6 py-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="bg-card/60 border-border">
+              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md transition">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -137,7 +142,7 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/60 border-border">
+              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md transition">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -156,7 +161,7 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/60 border-border">
+              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md transition">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -175,7 +180,7 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/60 border-border">
+              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md transition">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -183,7 +188,7 @@ export default function Dashboard() {
                       <span className="text-sm">Soil Moisture</span>
                     </div>
                     <span className="text-xs text-amber-500">
-                      {((getReading("soil_moisture") ?? 32) < 35) ? "Needs water soon" : "Good"}
+                      {( (getReading("soil_moisture") ?? 32) < 35) ? "Needs water soon" : "Good"}
                     </span>
                   </div>
                   <div className="text-2xl font-semibold">
