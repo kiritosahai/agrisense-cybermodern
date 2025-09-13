@@ -10,8 +10,6 @@ import { TimeSeriesPanel } from "@/components/TimeSeriesPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Thermometer, Droplets, Sun, Wind } from "lucide-react";
-import { RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Bell, Zap, FileText, MapPin } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -22,6 +20,8 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  ScatterChart,
+  Scatter,
 } from "recharts";
 
 const chartTheme = {
@@ -44,7 +44,7 @@ export default function AnalyticsPage() {
   const { isLoading, isAuthenticated, user } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
-  const [randSeed, setRandSeed] = useState(() => Math.random() * 1000);
+  const [randSeed] = useState(() => Math.random() * 1000);
 
   const fields = useQuery(api.fields.getUserFields);
   const selectedField =
@@ -98,6 +98,12 @@ export default function AnalyticsPage() {
       windAvg: i === 3 ? null : Math.round(wind * 10) / 10,
     };
   });
+
+  // New: simple X–Y data for demo scatter plot
+  const xyData = Array.from({ length: 30 }, (_, i) => ({
+    x: i,
+    y: Math.round(50 + 30 * Math.sin(i / 5) + noise(i, 37) * 10),
+  }));
 
   const latest = fake24hData[fake24hData.length - 1];
   const metricCards = [
@@ -195,16 +201,6 @@ export default function AnalyticsPage() {
                   onFieldSelect={(field) => setSelectedFieldId(field._id)}
                 />
               )}
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2"
-                onClick={() => setRandSeed(Math.random() * 1000)}
-                title="Generate new random demo data"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                Randomize
-              </Button>
             </div>
           </div>
 
@@ -411,6 +407,41 @@ export default function AnalyticsPage() {
                       activeDot={{ r: 4 }}
                     />
                   </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* New: X–Y Demo Scatter Plot */}
+          <div className="px-4 sm:px-6 pb-6 max-w-7xl mx-auto">
+            <Card className="bg-card border-border/60 rounded-xl shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">X–Y Demo Scatter</CardTitle>
+              </CardHeader>
+              <CardContent className="h-[280px] md:h-[340px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ScatterChart>
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} />
+                    <XAxis
+                      type="number"
+                      dataKey="x"
+                      stroke={chartTheme.axis}
+                      fontSize={12}
+                      tickLine={false}
+                      label={{ value: "X Value", position: "insideBottom", offset: -5, fill: chartTheme.axis }}
+                    />
+                    <YAxis
+                      type="number"
+                      dataKey="y"
+                      stroke={chartTheme.axis}
+                      fontSize={12}
+                      tickLine={false}
+                      label={{ value: "Y Value", angle: -90, position: "insideLeft", fill: chartTheme.axis }}
+                    />
+                    <Tooltip content={<MissingAwareTooltip />} />
+                    <Legend wrapperStyle={{ color: chartTheme.legend.color, fontSize: chartTheme.legend.fontSize }} />
+                    <Scatter name="Demo Points" data={xyData} fill="#a78bfa" />
+                  </ScatterChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
