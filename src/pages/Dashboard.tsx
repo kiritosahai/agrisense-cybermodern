@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
+// Simplified Dashboard: Only Quick Insights (removes all image analysis hooks/UI)
 export default function Dashboard() {
   const { isLoading, isAuthenticated, user } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -22,7 +23,7 @@ export default function Dashboard() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Small deterministic noise helper for demo values
+  // Deterministic noise helper for demo values
   const noise = (x: number, salt: number) => {
     const s = Math.sin(x * 12.9898 + salt + randSeed) * 43758.5453;
     return s - Math.floor(s);
@@ -54,7 +55,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* New Minimal Content: Quick Insights only */}
+          {/* Quick Insights only */}
           <div className="px-4 sm:px-6 py-4 max-w-5xl mx-auto">
             <Card className="bg-card border-border/60 rounded-xl shadow-sm">
               <CardContent className="text-sm text-muted-foreground space-y-2 p-5">
