@@ -214,8 +214,8 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <img src="https://harmless-tapir-303.convex.cloud/api/storage/dcab8a5a-6b8f-4af4-ad86-e3468d917e90" alt="AgriSense" className="w-8 h-8" />
-              <span className="text-xl font-bold tracking-tight">AgriSense</span>
+              <img src="https://harmless-tapir-303.convex.cloud/api/storage/dcab8a5a-6b8f-4af4-ad86-e3468d917e90" alt="Agri-Spectra" className="w-8 h-8" />
+              <span className="text-xl font-bold tracking-tight">Agri-Spectra</span>
             </div>
             
             <div className="flex items-center gap-4">
@@ -650,11 +650,11 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <img src="https://harmless-tapir-303.convex.cloud/api/storage/dcab8a5a-6b8f-4af4-ad86-e3468d917e90" alt="AgriSense" className="w-6 h-6" />
-              <span className="font-semibold">AgriSense</span>
+              <img src="https://harmless-tapir-303.convex.cloud/api/storage/dcab8a5a-6b8f-4af4-ad86-e3468d917e90" alt="Agri-Spectra" className="w-6 h-6" />
+              <span className="font-semibold">Agri-Spectra</span>
             </div>
             <div className="text-sm text-muted-foreground">
-              © 2024 AgriSense. Powered by{" "}
+              © 2024 Agri-Spectra. Powered by{" "}
               <a
                 href="#"
                 target="_blank"
