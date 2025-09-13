@@ -613,12 +613,12 @@ results.forEach((r: AnalysisResult) => URL.revokeObjectURL(r.previewUrl));
             <div className="text-sm text-muted-foreground">
               © 2024 AgriSense. Powered by{" "}
               <a
-                href="https://vly.ai"
+                href="#"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                vly.ai
+                srm
               </a>
             </div>
           </div>
