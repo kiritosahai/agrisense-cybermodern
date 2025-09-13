@@ -19,6 +19,8 @@ import {
   Brain,
   Eye,
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Thermometer, Droplets } from "lucide-react";
 
 const features = [
   {
@@ -95,120 +97,98 @@ export default function Landing() {
       <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <motion.div
-            className="text-center mb-16"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
-              <Leaf className="w-3 h-3 mr-1" />
-              Next-Generation Agriculture
-            </Badge>
-            
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-primary via-cyan-400 to-green-400 bg-clip-text text-transparent">
-              Precision Agriculture
-              <br />
-              <span className="text-foreground">Powered by AI</span>
-            </h1>
-            
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed">
-              Transform your farming with hyperspectral imaging, IoT sensors, and machine learning. 
-              Monitor crop health, predict yields, and optimize resources in real-time.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3"
-                onClick={() => navigate(isAuthenticated ? "/dashboard" : "/auth")}
-              >
-                {isAuthenticated ? "Go to Dashboard" : "Start Free Trial"}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="lg" className="px-8 py-3">
-                Watch Demo
-              </Button>
+            {/* Left: Text */}
+            <div>
+              <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
+                AI‑Powered Agriculture Platform
+              </Badge>
+
+              <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">
+                Precision Agriculture
+                <br />
+                <span className="bg-gradient-to-r from-primary via-cyan-400 to-green-400 bg-clip-text text-transparent">
+                  Redefined
+                </span>
+              </h1>
+
+              <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+                Harness the power of hyperspectral imaging, IoT sensors, and machine learning to
+                optimize crop yields, reduce resource waste, and make data‑driven farming decisions.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  size="lg"
+                  className="bg-foreground text-background hover:bg-foreground/90"
+                  onClick={() => navigate(isAuthenticated ? "/dashboard" : "/auth")}
+                >
+                  Go to Dashboard
+                </Button>
+                <Button variant="outline" size="lg">
+                  Watch Demo
+                </Button>
+              </div>
             </div>
-          </motion.div>
 
-          {/* Hero Visual */}
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.3 }}
-          >
-            <div className="relative bg-gradient-to-br from-primary/5 to-cyan-500/5 rounded-2xl p-8 border border-border">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="bg-card/50 backdrop-blur-sm border-border">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 bg-green-500/20 rounded-lg">
-                        <Satellite className="h-6 w-6 text-green-400" />
+            {/* Right: Metrics Panel */}
+            <motion.div
+              className="w-full"
+              initial={{ opacity: 0, scale: 0.98, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <div className="rounded-2xl p-6 border border-border bg-card/60 backdrop-blur-sm">
+                {/* Top metrics */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Card className="bg-background/60 border-border">
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Thermometer className="h-4 w-4 text-red-400" />
+                          <span className="text-sm">Temperature</span>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold">Field Analysis</h3>
-                        <p className="text-sm text-muted-foreground">Real-time monitoring</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>NDVI Health</span>
-                        <span className="text-green-400">92%</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Soil Moisture</span>
-                        <span className="text-blue-400">68%</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Pest Risk</span>
-                        <span className="text-orange-400">Low</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                      <div className="text-2xl font-semibold">24.5°C</div>
+                      <div className="text-xs text-muted-foreground mt-1">Optimal range</div>
+                    </CardContent>
+                  </Card>
 
-                <Card className="bg-card/50 backdrop-blur-sm border-border">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 bg-blue-500/20 rounded-lg">
-                        <BarChart3 className="h-6 w-6 text-blue-400" />
+                  <Card className="bg-background/60 border-border">
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Droplets className="h-4 w-4 text-blue-400" />
+                          <span className="text-sm">Soil Moisture</span>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold">Yield Prediction</h3>
-                        <p className="text-sm text-muted-foreground">AI-powered forecast</p>
-                      </div>
-                    </div>
-                    <div className="text-2xl font-bold text-primary mb-2">8.2 tons/ha</div>
-                    <div className="text-sm text-green-400">+15% vs last season</div>
-                  </CardContent>
-                </Card>
+                      <div className="text-2xl font-semibold">68%</div>
+                      <div className="text-xs text-muted-foreground mt-1">Good levels</div>
+                    </CardContent>
+                  </Card>
+                </div>
 
-                <Card className="bg-card/50 backdrop-blur-sm border-border">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 bg-pink-500/20 rounded-lg">
-                        <Shield className="h-6 w-6 text-pink-400" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">Alerts</h3>
-                        <p className="text-sm text-muted-foreground">Smart notifications</p>
-                      </div>
+                {/* NDVI card */}
+                <Card className="mt-4 bg-background/60 border-border">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="font-medium">NDVI Health Index</div>
+                      <Badge variant="secondary" className="text-green-400 border-green-500/30 bg-green-500/10">
+                        Healthy
+                      </Badge>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        <span>Irrigation scheduled</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                        <span>Weather alert</span>
-                      </div>
+                    <Progress value={78} className="h-2" />
+                    <div className="text-xs text-muted-foreground mt-2">
+                      0.78 – Excellent vegetation health
                     </div>
                   </CardContent>
                 </Card>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
