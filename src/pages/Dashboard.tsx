@@ -18,12 +18,14 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Sun, CloudSun, Thermometer, Droplets } from "lucide-react";
+import { Sun, CloudSun, Thermometer, Droplets, MapPin } from "lucide-react";
 
 export default function Dashboard() {
   const { isLoading, isAuthenticated, user } = useAuth();
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const fields = useQuery(api.fields.getUserFields);
@@ -60,6 +62,28 @@ export default function Dashboard() {
     return <Navigate to="/auth" replace />;
   }
 
+  const requestLocation = () => {
+    setLocationError(null);
+    if (!("geolocation" in navigator)) {
+      setLocationError("Geolocation is not supported by your browser.");
+      toast.error("Geolocation not supported");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setUserLocation({ lat: latitude, lng: longitude });
+        toast.success("Location detected");
+      },
+      (err) => {
+        console.error(err);
+        setLocationError(err.message || "Failed to get location");
+        toast.error("Failed to get location");
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background text-foreground">
       <div className="flex h-screen">
@@ -83,15 +107,8 @@ export default function Dashboard() {
                   Welcome, {user?.name?.split?.(" ")?.[0] || "Grower"}
                 </span>
               </div>
-              {fields && fields.length > 0 && (
-                <div className="hidden sm:block">
-                  <FieldSelector
-                    fields={fields}
-                    selectedField={selectedField}
-                    onFieldSelect={(field) => setSelectedFieldId(field._id)}
-                  />
-                </div>
-              )}
+              {/* Field selector removed from view */}
+              <div className="hidden">{/* intentionally hidden */}</div>
             </div>
             <div className="flex items-center gap-2">
               {/* Alerts bell with unread count */}
@@ -115,9 +132,50 @@ export default function Dashboard() {
                 )}
               </Button>
 
+              {/* New: Request user location */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={requestLocation}
+                className="gap-2"
+                title="Use my location"
+              >
+                <MapPin className="h-4 w-4" />
+                Location
+              </Button>
+
               <PlantImageUploader selectedField={selectedField ?? null} onUploaded={() => {}} />
             </div>
           </div>
+
+          {/* New: Location info bar */}
+          {userLocation && (
+            <div className="px-4 sm:px-6 py-2">
+              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-lg">
+                <CardContent className="py-2.5 px-3 flex items-center justify-between text-xs sm:text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
+                      <MapPin className="h-3.5 w-3.5 text-primary" />
+                    </span>
+                    <div className="text-muted-foreground">
+                      Your location detected:
+                      <span className="ml-2 text-foreground font-medium">
+                        {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="hidden sm:block text-muted-foreground">
+                    Weather shown is tailored to your current area
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+          {locationError && (
+            <div className="px-4 sm:px-6 pt-2">
+              <div className="text-xs text-red-500">{locationError}</div>
+            </div>
+          )}
 
           {/* Metrics Row */}
           {selectedField && (
