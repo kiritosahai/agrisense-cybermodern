@@ -25,6 +25,11 @@ export default function Dashboard() {
 
   const fields = useQuery(api.fields.getUserFields);
 
+  // Always run this hook before any early returns to keep hook order stable
+  const allUserUnackedAlerts =
+    useQuery(api.alerts.getUserAlerts, { acknowledged: false }) || [];
+  const unackedCount = allUserUnackedAlerts.length
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -38,10 +43,6 @@ export default function Dashboard() {
   }
 
   const selectedField = fields?.find(f => f._id === selectedFieldId) || fields?.[0];
-
-  const allUserUnackedAlerts =
-    useQuery(api.alerts.getUserAlerts, { acknowledged: false }) || [];
-  const unackedCount = allUserUnackedAlerts.length;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
