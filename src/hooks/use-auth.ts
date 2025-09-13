@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 export function useAuth() {
   const { isLoading: isAuthLoading, isAuthenticated } = useConvexAuth();
   const user = useQuery(api.users.currentUser);
-  const { signIn, signOut } = useAuthActions();
+  const authActions = useAuthActions();
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -23,7 +23,7 @@ export function useAuth() {
     isLoading,
     isAuthenticated,
     user,
-    signIn,
-    signOut,
+    signIn: authActions?.signIn,
+    signOut: authActions?.signOut,
   };
 }
