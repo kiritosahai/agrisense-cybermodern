@@ -156,13 +156,13 @@ export function MapCanvas({ selectedField }: MapCanvasProps) {
   });
 
   const sensorData = useQuery(
-    (selectedField ? api.sensors.getLatestSensorReadings : undefined) as unknown as any,
-    (selectedField ? { fieldId: selectedField._id } : undefined) as any
+    api.sensors.getLatestSensorReadings,
+    selectedField ? { fieldId: selectedField._id } : "skip"
   );
 
   const alerts = useQuery(
-    (selectedField ? api.alerts.getFieldAlerts : undefined) as unknown as any,
-    (selectedField ? { fieldId: selectedField._id } : undefined) as any
+    api.alerts.getFieldAlerts,
+    selectedField ? { fieldId: selectedField._id } : "skip"
   );
 
   const handleLayerToggle = (layer: string) => {

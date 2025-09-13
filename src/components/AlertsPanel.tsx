@@ -39,8 +39,8 @@ const severityColors = {
 
 export function AlertsPanel({ selectedField }: AlertsPanelProps) {
   const alerts = useQuery(
-    (selectedField ? api.alerts.getFieldAlerts : undefined) as unknown as any,
-    (selectedField ? { fieldId: selectedField._id } : undefined) as any
+    api.alerts.getFieldAlerts,
+    selectedField ? { fieldId: selectedField._id } : "skip"
   );
 
   const acknowledgeAlert = useMutation(api.alerts.acknowledgeAlert);

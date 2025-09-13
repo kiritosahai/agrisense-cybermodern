@@ -69,14 +69,14 @@ export function TimeSeriesPanel({ selectedField }: TimeSeriesPanelProps) {
   const startTime = endTime - (timeRange * 24 * 60 * 60 * 1000);
 
   const sensorData = useQuery(
-    (selectedField ? api.sensors.getFieldSensorData : undefined) as unknown as any,
-    (selectedField
+    api.sensors.getFieldSensorData,
+    selectedField
       ? {
           fieldId: selectedField._id,
           startTime,
           endTime,
         }
-      : undefined) as any
+      : "skip"
   );
 
   // Process data for chart
