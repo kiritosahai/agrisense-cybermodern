@@ -1,9 +1,14 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Navigate } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Stethoscope, Images as ImagesIcon, Leaf } from "lucide-react";
 
 export default function Dashboard() {
   const { isLoading, isAuthenticated, user } = useAuth();
@@ -26,6 +31,145 @@ export default function Dashboard() {
   const noise = (x: number, salt: number) => {
     const s = Math.sin(x * 12.9898 + salt + randSeed) * 43758.5453;
     return s - Math.floor(s);
+  };
+
+  type SelectedFile = { file: File; previewUrl: string };
+  type AnalysisResult = {
+    fileName: string;
+    previewUrl: string;
+    greenRatio: number;
+    dryRatio: number;
+    plantName: string;
+    healthCondition: "Healthy" | "Moderate" | "Stressed";
+    growthStage: "Seedling" | "Vegetative" | "Flowering" | "Maturation";
+    possibleDiseases: string[];
+  };
+
+  const [selectedFiles, setSelectedFiles] = useState<Array<SelectedFile>>([]);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [results, setResults] = useState<Array<AnalysisResult>>([]);
+
+  // Cleanup object URLs
+  useEffect(() => {
+    return () => {
+      selectedFiles.forEach((f: SelectedFile) => URL.revokeObjectURL(f.previewUrl));
+      results.forEach((r: AnalysisResult) => URL.revokeObjectURL(r.previewUrl));
+    };
+  }, [selectedFiles, results]);
+
+  const handleFilesChange = (filesList: FileList | null) => {
+    if (!filesList) return;
+    selectedFiles.forEach((f: SelectedFile) => URL.revokeObjectURL(f.previewUrl));
+    const files = Array.from(filesList);
+    const mapped = files.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+    setSelectedFiles(mapped);
+    setResults([]);
+  };
+
+  const analyzeImage = async (
+    previewUrl: string
+  ): Promise<{
+    greenRatio: number;
+    dryRatio: number;
+    plantName: string;
+    healthCondition: "Healthy" | "Moderate" | "Stressed";
+    growthStage: "Seedling" | "Vegetative" | "Flowering" | "Maturation";
+    possibleDiseases: string[];
+  }> => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = previewUrl;
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = (e) => reject(e);
+    });
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas 2D context unavailable");
+
+    const maxSide = 512;
+    const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+    const w = Math.max(1, Math.floor(img.width * scale));
+    const h = Math.max(1, Math.floor(img.height * scale));
+    canvas.width = w;
+    canvas.height = h;
+    ctx.drawImage(img, 0, 0, w, h);
+
+    const { data } = ctx.getImageData(0, 0, w, h);
+    let greenish = 0;
+    let dryish = 0;
+    let total = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const a = data[i + 3];
+      if (a < 20) continue;
+      total++;
+      if (g > r && g > b && g > 60) greenish++;
+      if (r > g && r > b && r > 80) dryish++;
+    }
+    const greenRatio = total > 0 ? greenish / total : 0;
+    const dryRatio = total > 0 ? dryish / total : 0;
+
+    const healthCondition: "Healthy" | "Moderate" | "Stressed" =
+      greenRatio >= 0.6 && dryRatio < 0.2
+        ? "Healthy"
+        : greenRatio >= 0.35 && dryRatio < 0.35
+        ? "Moderate"
+        : "Stressed";
+
+    const growthStage: "Seedling" | "Vegetative" | "Flowering" | "Maturation" =
+      greenRatio > 0.65
+        ? "Vegetative"
+        : greenRatio > 0.5
+        ? "Flowering"
+        : greenRatio > 0.35
+        ? "Maturation"
+        : "Seedling";
+
+    const possibleDiseases: string[] = [];
+    if (dryRatio > 0.35) possibleDiseases.push("Drought Stress");
+    if (greenRatio < 0.3) possibleDiseases.push("Nutrient Deficiency");
+    if (greenRatio >= 0.3 && greenRatio < 0.5 && dryRatio >= 0.2) {
+      possibleDiseases.push("Leaf Scorch (placeholder)");
+    }
+
+    const names = ["Maize (placeholder)", "Wheat (placeholder)", "Soybean (placeholder)", "Tomato (placeholder)"];
+    const plantName = names[Math.floor(greenRatio * names.length)] || "Unknown (placeholder)";
+
+    return { greenRatio, dryRatio, healthCondition, growthStage, possibleDiseases, plantName };
+  };
+
+  const analyzeAll = async () => {
+    if (selectedFiles.length === 0) return;
+    setAnalyzing(true);
+    try {
+      const computed: Array<AnalysisResult> = await Promise.all(
+        selectedFiles.map(async (f: SelectedFile) => {
+          const res = await analyzeImage(f.previewUrl);
+          return {
+            fileName: f.file.name,
+            previewUrl: f.previewUrl,
+            greenRatio: Number(res.greenRatio.toFixed(3)),
+            dryRatio: Number(res.dryRatio.toFixed(3)),
+            plantName: res.plantName,
+            healthCondition: res.healthCondition,
+            growthStage: res.growthStage,
+            possibleDiseases: res.possibleDiseases,
+          };
+        })
+      );
+      setResults(computed);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   return (
@@ -76,6 +220,150 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Interactive Plant Analysis Section (Dashboard) */}
+            <Card className="bg-card/60 border-border rounded-xl shadow-sm mt-4">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Leaf className="h-4 w-4 text-green-400" />
+                  <Badge className="bg-green-500/10 text-green-400 border-green-500/20">Interactive</Badge>
+                </div>
+                <div className="text-base font-semibold">Plant Analysis Dashboard</div>
+                <div className="text-sm text-muted-foreground">
+                  Upload one or more crop images to analyze health indicators, growth stage, and possible diseases.
+                </div>
+
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <ImagesIcon className="h-5 w-5 text-green-400" />
+                    <span className="text-sm font-medium">Upload Images</span>
+                  </div>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleFilesChange(e.target.files)}
+                    className="max-w-md"
+                  />
+                  <Button
+                    size="sm"
+                    className="ml-0 md:ml-auto bg-green-600 hover:bg-green-600/90"
+                    onClick={analyzeAll}
+                    disabled={selectedFiles.length === 0 || analyzing}
+                  >
+                    {analyzing ? "Analyzing..." : "Analyze Images"}
+                  </Button>
+                </div>
+
+                {selectedFiles.length > 0 && results.length === 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-2">
+                    {selectedFiles.map((f: SelectedFile, i: number) => (
+                      <Card key={i} className="border-border">
+                        <CardContent className="p-2">
+                          <img
+                            src={f.previewUrl}
+                            alt={f.file.name}
+                            className="w-full h-40 object-cover rounded-md"
+                          />
+                          <div className="mt-2 text-xs text-muted-foreground truncate">{f.file.name}</div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {results.length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {results.map((r: AnalysisResult, i: number) => (
+                      <Card key={i} className="border-border/70 hover:border-green-500/40 transition-colors">
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-3">
+                            <img
+                              src={r.previewUrl}
+                              alt={r.fileName}
+                              className="w-24 h-24 object-cover rounded-md border border-border/60"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <div className="text-sm font-semibold truncate">{r.fileName}</div>
+                                <Badge
+                                  variant="secondary"
+                                  className={`text-xs ${
+                                    r.healthCondition === "Healthy"
+                                      ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                      : r.healthCondition === "Moderate"
+                                      ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/30"
+                                      : "bg-red-500/15 text-red-400 border-red-500/30"
+                                  }`}
+                                >
+                                  {r.healthCondition}
+                                </Badge>
+                              </div>
+                              <div className="mt-1 text-xs text-muted-foreground">
+                                Plant: <span className="text-foreground">{r.plantName}</span>
+                              </div>
+                              <div className="mt-1 text-xs text-muted-foreground">
+                                Growth Stage: <span className="text-foreground">{r.growthStage}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 grid grid-cols-2 gap-3">
+                            <div className="rounded-lg border border-border/60 p-2">
+                              <div className="text-[11px] text-muted-foreground mb-1">Green Coverage</div>
+                              <div className="text-sm font-medium text-green-400">
+                                {(r.greenRatio * 100).toFixed(1)}%
+                              </div>
+                              <Progress
+                                value={Math.min(100, Math.max(0, r.greenRatio * 100))}
+                                className="h-1.5 mt-1"
+                              />
+                            </div>
+                            <div className="rounded-lg border border-border/60 p-2">
+                              <div className="text-[11px] text-muted-foreground mb-1">Dry Coverage</div>
+                              <div className="text-sm font-medium text-amber-400">
+                                {(r.dryRatio * 100).toFixed(1)}%
+                              </div>
+                              <Progress
+                                value={Math.min(100, Math.max(0, r.dryRatio * 100))}
+                                className="h-1.5 mt-1"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="mt-4">
+                            <div className="text-xs font-medium flex items-center gap-2 mb-1">
+                              <Stethoscope className="h-3.5 w-3.5 text-green-400" />
+                              Possible Diseases (placeholder)
+                            </div>
+                            {r.possibleDiseases.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {r.possibleDiseases.map((d: string, idx: number) => (
+                                  <Badge key={idx} variant="outline" className="text-xs">
+                                    {d}
+                                  </Badge>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-xs text-muted-foreground">None detected</div>
+                            )}
+                          </div>
+
+                          <div className="mt-4 rounded-md border border-green-500/20 bg-green-500/5 p-3">
+                            <div className="text-xs font-medium text-green-400 mb-1">AI Insights (coming soon)</div>
+                            <p className="text-xs text-muted-foreground">
+                              This section will be powered by advanced plant disease and variety models to provide
+                              detailed diagnostics and recommendations.
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            {/* End Interactive Plant Analysis Section */}
           </div>
         </div>
       </div>
