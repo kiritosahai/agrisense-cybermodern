@@ -10,6 +10,8 @@ import { TimeSeriesPanel } from "@/components/TimeSeriesPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Thermometer, Droplets, Sun, Wind } from "lucide-react";
+import { RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   ResponsiveContainer,
   LineChart,
@@ -41,6 +43,7 @@ export default function AnalyticsPage() {
   const { isLoading, isAuthenticated, user } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
+  const [randSeed, setRandSeed] = useState(() => Math.random() * 1000);
 
   const fields = useQuery(api.fields.getUserFields);
   const selectedField =
@@ -61,7 +64,7 @@ export default function AnalyticsPage() {
   // Fake 24h analysis data (deterministic per hour)
   const hours: Array<number> = Array.from({ length: 24 }, (_, i) => i);
   const noise = (x: number, salt: number) => {
-    const s = Math.sin(x * 12.9898 + salt) * 43758.5453;
+    const s = Math.sin(x * 12.9898 + salt + randSeed) * 43758.5453;
     return s - Math.floor(s);
   };
   const fake24hData = hours.map((h) => {
@@ -191,6 +194,16 @@ export default function AnalyticsPage() {
                   onFieldSelect={(field) => setSelectedFieldId(field._id)}
                 />
               )}
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => setRandSeed(Math.random() * 1000)}
+                title="Generate new random demo data"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                Randomize
+              </Button>
             </div>
           </div>
 
