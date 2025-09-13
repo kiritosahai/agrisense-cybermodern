@@ -149,7 +149,7 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="flex h-screen">
         <Sidebar
           collapsed={sidebarCollapsed}
@@ -182,7 +182,7 @@ export default function AnalyticsPage() {
             {metricCards.map((m, i) => {
               const Icon = m.icon;
               return (
-                <Card key={i} className="bg-white border-border/60 rounded-xl shadow-sm hover:shadow-md transition-all">
+                <Card key={i} className="bg-card border-border/60 rounded-xl shadow-sm hover:shadow-md transition-all">
                   <CardContent className="p-4 md:p-5">
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-muted-foreground">{m.label}</div>
@@ -200,7 +200,7 @@ export default function AnalyticsPage() {
 
           {/* Quick Insights (random info) */}
           <div className="px-4 sm:px-6 pb-4 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            <Card className="bg-white border-border/60 rounded-xl shadow-sm">
+            <Card className="bg-card border-border/60 rounded-xl shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Quick Insights</CardTitle>
               </CardHeader>
@@ -210,7 +210,7 @@ export default function AnalyticsPage() {
                 <div>Growing degree days (last 24h): <span className="text-foreground font-medium">{Math.round(12 + noise(2, 9) * 8)}</span></div>
               </CardContent>
             </Card>
-            <Card className="bg-white border-border/60 rounded-xl shadow-sm">
+            <Card className="bg-card border-border/60 rounded-xl shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Notes</CardTitle>
               </CardHeader>
@@ -224,7 +224,7 @@ export default function AnalyticsPage() {
 
           {/* 24-Hour History */}
           <div className="px-4 sm:px-6 pb-4 max-w-7xl mx-auto">
-            <Card className="bg-white border-border/60 rounded-xl shadow-sm">
+            <Card className="bg-card border-border/60 rounded-xl shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">24-Hour History</CardTitle>
               </CardHeader>
@@ -247,7 +247,7 @@ export default function AnalyticsPage() {
 
           {/* 7-Day Trend */}
           <div className="px-4 sm:px-6 pb-6 max-w-7xl mx-auto">
-            <Card className="bg-white border-border/60 rounded-xl shadow-sm">
+            <Card className="bg-card border-border/60 rounded-xl shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">7-Day Trend</CardTitle>
               </CardHeader>
