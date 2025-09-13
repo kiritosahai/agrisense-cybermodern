@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Navigate } from "react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -40,6 +40,8 @@ export default function Dashboard() {
       possibleDiseases: string[];
     }>
   >([]);
+  // Add camera input ref for in-app capture
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
 
   // Revoke object URLs on unmount
   useEffect(() => {
@@ -216,6 +218,22 @@ export default function Dashboard() {
                     onChange={(e) => handleFilesChange(e.target.files)}
                     className="max-w-md"
                   />
+                  {/* Hidden camera input for direct capture */}
+                  <input
+                    ref={cameraInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => handleFilesChange(e.target.files)}
+                    className="hidden"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => cameraInputRef.current?.click()}
+                  >
+                    Take Photo
+                  </Button>
                   <Button
                     size="sm"
                     className="ml-0 md:ml-auto bg-green-600 hover:bg-green-600/90"
