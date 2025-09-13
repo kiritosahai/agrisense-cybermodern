@@ -172,6 +172,8 @@ export default function Dashboard() {
     return <Navigate to="/auth" replace />;
   }
 
+  // removed unused noise helper (referenced undefined randSeed)
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex h-screen">
