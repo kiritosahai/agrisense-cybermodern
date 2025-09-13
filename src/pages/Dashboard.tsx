@@ -33,6 +33,21 @@ export default function Dashboard() {
     useQuery(api.alerts.getUserAlerts, { acknowledged: false }) || [];
   const unackedCount = allUserUnackedAlerts.length
 
+  // MOVE THESE HOOKS ABOVE EARLY RETURNS TO KEEP HOOK ORDER STABLE
+  const selectedField =
+    fields?.find((f) => f._id === selectedFieldId) || fields?.[0];
+
+  const latestReadings =
+    useQuery(
+      api.sensors.getLatestSensorReadings,
+      selectedField ? { fieldId: selectedField._id } : "skip"
+    ) || [];
+
+  const getReading = (type: string) =>
+    (latestReadings.find((r: any) => r.sensorType === type)?.value as
+      | number
+      | undefined);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -44,17 +59,6 @@ export default function Dashboard() {
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
   }
-
-  const selectedField = fields?.find(f => f._id === selectedFieldId) || fields?.[0];
-
-  // Latest sensor snapshot for metric cards
-  const latestReadings = useQuery(
-    api.sensors.getLatestSensorReadings,
-    selectedField ? { fieldId: selectedField._id } : "skip"
-  ) || [];
-
-  const getReading = (type: string) =>
-    latestReadings.find((r: any) => r.sensorType === type)?.value as number | undefined;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
