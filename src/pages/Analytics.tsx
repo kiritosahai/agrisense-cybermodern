@@ -163,7 +163,7 @@ export default function AnalyticsPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">24-Hour History</CardTitle>
               </CardHeader>
-              <CardContent className="h-64 md:h-80">
+              <CardContent className="h-[300px] md:h-[360px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={fake24hData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -192,7 +192,7 @@ export default function AnalyticsPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">7-Day Trend</CardTitle>
               </CardHeader>
-              <CardContent className="h-64 md:h-80">
+              <CardContent className="h-[300px] md:h-[360px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={fake7dData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
