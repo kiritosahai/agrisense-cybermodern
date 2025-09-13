@@ -7,6 +7,19 @@ import { Sidebar } from "@/components/Sidebar";
 import { Loader2, BarChart3 } from "lucide-react";
 import { FieldSelector } from "@/components/FieldSelector";
 import { TimeSeriesPanel } from "@/components/TimeSeriesPanel";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Thermometer, Droplets, Sun, Wind } from "lucide-react";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 export default function AnalyticsPage() {
   const { isLoading, isAuthenticated, user } = useAuth();
@@ -28,6 +41,56 @@ export default function AnalyticsPage() {
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
   }
+
+  // Fake 24h analysis data (deterministic per hour)
+  const hours: Array<number> = Array.from({ length: 24 }, (_, i) => i);
+  const noise = (x: number, salt: number) => {
+    const s = Math.sin(x * 12.9898 + salt) * 43758.5453;
+    return s - Math.floor(s);
+  };
+  const fake24hData = hours.map((h) => {
+    const t = 68 + 8 * Math.sin((Math.PI * (h - 6)) / 12) + noise(h, 7) * 2; // °F
+    const hum = 55 + 20 * Math.sin((Math.PI * (h + 2)) / 12) + noise(h, 11) * 5; // %
+    const wind = 6 + 6 * Math.abs(Math.sin((Math.PI * (h + 3)) / 12)) + noise(h, 19) * 2; // mph
+    return {
+      hour: `${h}:00`,
+      temperature: Math.round(t),
+      humidity: Math.max(0, Math.min(100, Math.round(hum))),
+      wind: Math.round(wind * 10) / 10,
+    };
+  });
+
+  const latest = fake24hData[fake24hData.length - 1];
+  const metricCards = [
+    {
+      label: "Temperature",
+      value: `${latest.temperature}°F`,
+      status: "Optimal",
+      icon: Thermometer,
+      color: "text-emerald-500",
+    },
+    {
+      label: "Humidity",
+      value: `${latest.humidity}%`,
+      status: latest.humidity >= 45 && latest.humidity <= 75 ? "Good" : "Watch",
+      icon: Droplets,
+      color: "text-sky-500",
+    },
+    {
+      label: "Light",
+      value: `850 lux`,
+      status: "Unknown",
+      icon: Sun,
+      color: "text-amber-500",
+    },
+    {
+      label: "Airflow",
+      value: `${latest.wind} mph`,
+      status: latest.wind >= 5 && latest.wind <= 15 ? "Good" : "Low",
+      icon: Wind,
+      color: "text-cyan-500",
+    },
+  ] as const;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -56,6 +119,56 @@ export default function AnalyticsPage() {
                 />
               )}
             </div>
+          </div>
+
+          {/* Fake Analysis Summary */}
+          <div className="px-4 sm:px-6 py-3 md:py-4 max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            {metricCards.map((m, i) => {
+              const Icon = m.icon;
+              return (
+                <Card key={i} className="border-border/70 bg-card/70 backdrop-blur rounded-xl shadow-sm hover:shadow-md transition-all">
+                  <CardContent className="p-4 md:p-5">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-muted-foreground">{m.label}</div>
+                      <Icon className={`h-4 w-4 ${m.color}`} />
+                    </div>
+                    <div className="mt-1 text-2xl font-semibold">{m.value}</div>
+                    <div className={`mt-1 text-xs ${m.status === "Optimal" || m.status === "Good" ? "text-emerald-500" : "text-amber-500"}`}>
+                      {m.status}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* 24-Hour History */}
+          <div className="px-4 sm:px-6 pb-4 max-w-7xl mx-auto">
+            <Card className="border-border/70 bg-card/70 backdrop-blur rounded-xl shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">24-Hour History</CardTitle>
+              </CardHeader>
+              <CardContent className="h-64 md:h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={fake24hData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="hour" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                      }}
+                    />
+                    <Legend />
+                    <Line type="monotone" dataKey="temperature" name="Temperature (°F)" stroke="#6b8afd" strokeWidth={2} dot={{ r: 2 }} />
+                    <Line type="monotone" dataKey="humidity" name="Humidity (%)" stroke="#34d399" strokeWidth={2} dot={{ r: 2 }} />
+                    <Line type="monotone" dataKey="wind" name="Wind (mph)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 2 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="flex-1">
