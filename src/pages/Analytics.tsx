@@ -253,9 +253,45 @@ export default function AnalyticsPage() {
                     <YAxis stroke={chartTheme.axis} fontSize={12} tickLine={false} />
                     <Tooltip content={<MissingAwareTooltip />} />
                     <Legend wrapperStyle={{ color: chartTheme.legend.color, fontSize: chartTheme.legend.fontSize }} />
-                    <Line type="monotone" dataKey="temperature" name="Temperature (°F)" stroke="#6b8afd" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
-                    <Line type="monotone" dataKey="humidity" name="Humidity (%)" stroke="#34d399" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
-                    <Line type="monotone" dataKey="wind" name="Wind (mph)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
+                    <Line
+                      type="monotone"
+                      dataKey="temperature"
+                      name="Temperature (°F)"
+                      stroke="#6b8afd"
+                      strokeWidth={2}
+                      dot={{ r: 2 }}
+                      connectNulls={false}
+                      isAnimationActive
+                      animationDuration={700}
+                      animationEasing="ease-in-out"
+                      activeDot={{ r: 4 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="humidity"
+                      name="Humidity (%)"
+                      stroke="#34d399"
+                      strokeWidth={2}
+                      dot={{ r: 2 }}
+                      connectNulls={false}
+                      isAnimationActive
+                      animationDuration={700}
+                      animationEasing="ease-in-out"
+                      activeDot={{ r: 4 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="wind"
+                      name="Wind (mph)"
+                      stroke="#f59e0b"
+                      strokeWidth={2}
+                      dot={{ r: 2 }}
+                      connectNulls={false}
+                      isAnimationActive
+                      animationDuration={700}
+                      animationEasing="ease-in-out"
+                      activeDot={{ r: 4 }}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -276,9 +312,45 @@ export default function AnalyticsPage() {
                     <YAxis stroke={chartTheme.axis} fontSize={12} tickLine={false} />
                     <Tooltip content={<MissingAwareTooltip />} />
                     <Legend wrapperStyle={{ color: chartTheme.legend.color, fontSize: chartTheme.legend.fontSize }} />
-                    <Line type="monotone" dataKey="temperatureAvg" name="Avg Temperature (°F)" stroke="#6b8afd" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
-                    <Line type="monotone" dataKey="humidityAvg" name="Avg Humidity (%)" stroke="#34d399" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
-                    <Line type="monotone" dataKey="windAvg" name="Avg Wind (mph)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
+                    <Line
+                      type="monotone"
+                      dataKey="temperatureAvg"
+                      name="Avg Temperature (°F)"
+                      stroke="#6b8afd"
+                      strokeWidth={2}
+                      dot={{ r: 2 }}
+                      connectNulls={false}
+                      isAnimationActive
+                      animationDuration={700}
+                      animationEasing="ease-in-out"
+                      activeDot={{ r: 4 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="humidityAvg"
+                      name="Avg Humidity (%)"
+                      stroke="#34d399"
+                      strokeWidth={2}
+                      dot={{ r: 2 }}
+                      connectNulls={false}
+                      isAnimationActive
+                      animationDuration={700}
+                      animationEasing="ease-in-out"
+                      activeDot={{ r: 4 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="windAvg"
+                      name="Avg Wind (mph)"
+                      stroke="#f59e0b"
+                      strokeWidth={2}
+                      dot={{ r: 2 }}
+                      connectNulls={false}
+                      isAnimationActive
+                      animationDuration={700}
+                      animationEasing="ease-in-out"
+                      activeDot={{ r: 4 }}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
