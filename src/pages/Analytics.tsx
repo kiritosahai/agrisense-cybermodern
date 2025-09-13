@@ -52,11 +52,14 @@ export default function AnalyticsPage() {
     const t = 68 + 8 * Math.sin((Math.PI * (h - 6)) / 12) + noise(h, 7) * 2; // °F
     const hum = 55 + 20 * Math.sin((Math.PI * (h + 2)) / 12) + noise(h, 11) * 5; // %
     const wind = 6 + 6 * Math.abs(Math.sin((Math.PI * (h + 3)) / 12)) + noise(h, 19) * 2; // mph
+    // Introduce occasional missing data points to visualize gaps
+    const isHumidityMissing = [3, 8, 14].includes(h);
+    const isWindMissing = [5, 12, 20].includes(h);
     return {
       hour: `${h}:00`,
       temperature: Math.round(t),
-      humidity: Math.max(0, Math.min(100, Math.round(hum))),
-      wind: Math.round(wind * 10) / 10,
+      humidity: isHumidityMissing ? null : Math.max(0, Math.min(100, Math.round(hum))),
+      wind: isWindMissing ? null : Math.round(wind * 10) / 10,
     };
   });
 
@@ -70,8 +73,9 @@ export default function AnalyticsPage() {
     return {
       day: d,
       temperatureAvg: Math.round(t),
-      humidityAvg: Math.max(0, Math.min(100, Math.round(hum))),
-      windAvg: Math.round(wind * 10) / 10,
+      // Simulate an occasional missing day for humidityAvg
+      humidityAvg: [1, 5].includes(i) ? null : Math.max(0, Math.min(100, Math.round(hum))),
+      windAvg: i === 3 ? null : Math.round(wind * 10) / 10,
     };
   });
 
@@ -86,8 +90,11 @@ export default function AnalyticsPage() {
     },
     {
       label: "Humidity",
-      value: `${latest.humidity}%`,
-      status: latest.humidity >= 45 && latest.humidity <= 75 ? "Good" : "Watch",
+      value: latest.humidity != null ? `${latest.humidity}%` : "—",
+      status:
+        latest.humidity != null && latest.humidity >= 45 && latest.humidity <= 75
+          ? "Good"
+          : "Watch",
       icon: Droplets,
       color: "text-sky-500",
     },
@@ -100,12 +107,46 @@ export default function AnalyticsPage() {
     },
     {
       label: "Airflow",
-      value: `${latest.wind} mph`,
-      status: latest.wind >= 5 && latest.wind <= 15 ? "Good" : "Low",
+      value: latest.wind != null ? `${latest.wind} mph` : "—",
+      status:
+        latest.wind != null && latest.wind >= 5 && latest.wind <= 15 ? "Good" : "Low",
       icon: Wind,
       color: "text-cyan-500",
     },
   ] as const;
+
+  // Custom tooltip that handles nulls gracefully
+  const MissingAwareTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload) return null;
+    const items = payload.filter((p: any) => p && p.dataKey);
+    return (
+      <div
+        style={{
+          backgroundColor: "hsl(var(--card))",
+          border: "1px solid hsl(var(--border))",
+          borderRadius: 8,
+          padding: "8px 10px",
+          fontSize: 12,
+        }}
+      >
+        <div style={{ marginBottom: 4, color: "hsl(var(--muted-foreground))" }}>{label}</div>
+        {items.map((p: any, idx: number) => {
+          const val = p?.value;
+          const name = p?.name || p?.dataKey;
+          const color = p?.color;
+          return (
+            <div key={idx} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ display: "inline-block", width: 8, height: 8, background: color, borderRadius: 9999 }} />
+              <span style={{ color: "hsl(var(--foreground))" }}>{name}:</span>
+              <span style={{ color: val == null ? "hsl(var(--muted-foreground))" : "hsl(var(--foreground))" }}>
+                {val == null ? "No data" : val}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -169,17 +210,11 @@ export default function AnalyticsPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis dataKey="hour" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                     <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "8px",
-                      }}
-                    />
+                    <Tooltip content={<MissingAwareTooltip />} />
                     <Legend />
-                    <Line type="monotone" dataKey="temperature" name="Temperature (°F)" stroke="#6b8afd" strokeWidth={2} dot={{ r: 2 }} />
-                    <Line type="monotone" dataKey="humidity" name="Humidity (%)" stroke="#34d399" strokeWidth={2} dot={{ r: 2 }} />
-                    <Line type="monotone" dataKey="wind" name="Wind (mph)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 2 }} />
+                    <Line type="monotone" dataKey="temperature" name="Temperature (°F)" stroke="#6b8afd" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
+                    <Line type="monotone" dataKey="humidity" name="Humidity (%)" stroke="#34d399" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
+                    <Line type="monotone" dataKey="wind" name="Wind (mph)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -198,17 +233,11 @@ export default function AnalyticsPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                     <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "8px",
-                      }}
-                    />
+                    <Tooltip content={<MissingAwareTooltip />} />
                     <Legend />
-                    <Line type="monotone" dataKey="temperatureAvg" name="Avg Temperature (°F)" stroke="#6b8afd" strokeWidth={2} dot={{ r: 2 }} />
-                    <Line type="monotone" dataKey="humidityAvg" name="Avg Humidity (%)" stroke="#34d399" strokeWidth={2} dot={{ r: 2 }} />
-                    <Line type="monotone" dataKey="windAvg" name="Avg Wind (mph)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 2 }} />
+                    <Line type="monotone" dataKey="temperatureAvg" name="Avg Temperature (°F)" stroke="#6b8afd" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
+                    <Line type="monotone" dataKey="humidityAvg" name="Avg Humidity (%)" stroke="#34d399" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
+                    <Line type="monotone" dataKey="windAvg" name="Avg Wind (mph)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
