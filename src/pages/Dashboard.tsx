@@ -11,11 +11,17 @@ import { AlertsPanel } from "@/components/AlertsPanel";
 import { FieldSelector } from "@/components/FieldSelector";
 import { Loader2 } from "lucide-react";
 import PlantImageUploader from "@/components/PlantImageUploader";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Bell } from "lucide-react";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const { isLoading, isAuthenticated, user } = useAuth();
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const navigate = useNavigate();
 
   const fields = useQuery(api.fields.getUserFields);
 
@@ -32,6 +38,10 @@ export default function Dashboard() {
   }
 
   const selectedField = fields?.find(f => f._id === selectedFieldId) || fields?.[0];
+
+  // Fetch unacknowledged alerts count for the current user
+  const allUserUnackedAlerts = useQuery(api.alerts.getUserAlerts, { acknowledged: false }) || [];
+  const unackedCount = allUserUnackedAlerts.length;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -60,6 +70,27 @@ export default function Dashboard() {
               )}
             </div>
             <div className="flex items-center gap-2">
+              {/* Alerts bell with unread count */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="relative"
+                onClick={() => {
+                  navigate("/alerts");
+                  if (unackedCount === 0) toast("No new alerts");
+                }}
+              >
+                <Bell className="h-4 w-4" />
+                {unackedCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="absolute -top-1 -right-1 h-5 min-w-5 px-1 py-0 text-[10px] leading-5 rounded-full"
+                  >
+                    {unackedCount > 99 ? "99+" : unackedCount}
+                  </Badge>
+                )}
+              </Button>
+
               <PlantImageUploader selectedField={selectedField ?? null} onUploaded={() => {}} />
             </div>
           </div>
