@@ -39,7 +39,6 @@ export default function Dashboard() {
 
   const selectedField = fields?.find(f => f._id === selectedFieldId) || fields?.[0];
 
-  // Fetch unacknowledged alerts count for the current user
   const allUserUnackedAlerts = useQuery(api.alerts.getUserAlerts, { acknowledged: false }) || [];
   const unackedCount = allUserUnackedAlerts.length;
 
