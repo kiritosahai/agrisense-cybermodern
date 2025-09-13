@@ -18,6 +18,7 @@ import type * as auth_emailOtp from "../auth/emailOtp.js";
 import type * as auth from "../auth.js";
 import type * as fields from "../fields.js";
 import type * as http from "../http.js";
+import type * as images from "../images.js";
 import type * as jobs from "../jobs.js";
 import type * as sampleData from "../sampleData.js";
 import type * as sensors from "../sensors.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   fields: typeof fields;
   http: typeof http;
+  images: typeof images;
   jobs: typeof jobs;
   sampleData: typeof sampleData;
   sensors: typeof sensors;

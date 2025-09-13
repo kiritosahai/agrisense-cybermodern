@@ -10,6 +10,7 @@ import { TimeSeriesPanel } from "@/components/TimeSeriesPanel";
 import { AlertsPanel } from "@/components/AlertsPanel";
 import { FieldSelector } from "@/components/FieldSelector";
 import { Loader2 } from "lucide-react";
+import PlantImageUploader from "@/components/PlantImageUploader";
 
 export default function Dashboard() {
   const { isLoading, isAuthenticated, user } = useAuth();
@@ -57,6 +58,9 @@ export default function Dashboard() {
                   onFieldSelect={(field) => setSelectedFieldId(field._id)}
                 />
               )}
+            </div>
+            <div className="flex items-center gap-2">
+              <PlantImageUploader selectedField={selectedField ?? null} onUploaded={() => {}} />
             </div>
           </div>
 
