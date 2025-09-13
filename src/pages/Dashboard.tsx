@@ -75,20 +75,22 @@ export default function Dashboard() {
           sidebarCollapsed ? 'ml-16' : 'ml-64'
         }`}>
           {/* Header */}
-          <div className="h-16 sticky top-0 z-40 border-b border-border bg-card/70 backdrop-blur px-6 flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="h-14 md:h-16 sticky top-0 z-40 border-b border-border bg-card/70 backdrop-blur px-4 md:px-6 flex items-center justify-between">
+            <div className="flex items-center gap-3 md:gap-4">
               <div className="flex flex-col">
-                <h1 className="text-xl font-bold tracking-tight">AgriSense Dashboard</h1>
+                <h1 className="text-lg md:text-xl font-bold tracking-tight">AgriSense Dashboard</h1>
                 <span className="text-[11px] text-muted-foreground hidden sm:block">
                   Welcome, {user?.name?.split?.(" ")?.[0] || "Grower"}
                 </span>
               </div>
               {fields && fields.length > 0 && (
-                <FieldSelector
-                  fields={fields}
-                  selectedField={selectedField}
-                  onFieldSelect={(field) => setSelectedFieldId(field._id)}
-                />
+                <div className="hidden sm:block">
+                  <FieldSelector
+                    fields={fields}
+                    selectedField={selectedField}
+                    onFieldSelect={(field) => setSelectedFieldId(field._id)}
+                  />
+                </div>
               )}
             </div>
             <div className="flex items-center gap-2">
@@ -119,23 +121,23 @@ export default function Dashboard() {
 
           {/* Metrics Row */}
           {selectedField && (
-            <div className="px-6 py-4 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="px-4 sm:px-6 py-3 md:py-4 max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
               <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between mb-2">
+                <CardContent className="p-4 md:p-5">
+                  <div className="flex items-center justify-between mb-1.5 md:mb-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-500/10">
-                        <Thermometer className="h-4 w-4 text-red-400" />
+                      <span className="inline-flex h-6 w-6 md:h-7 md:w-7 items-center justify-center rounded-full bg-red-500/10">
+                        <Thermometer className="h-3.5 w-3.5 md:h-4 md:w-4 text-red-400" />
                       </span>
-                      <span className="text-sm">Temperature</span>
+                      <span className="text-xs md:text-sm">Temperature</span>
                     </div>
-                    <span className="text-xs text-green-500">Optimal</span>
+                    <span className="text-[11px] md:text-xs text-green-500">Optimal</span>
                   </div>
-                  <div className="text-2xl font-semibold">
+                  <div className="text-xl md:text-2xl font-semibold">
                     {Math.round((getReading("air_temperature") ?? 24) * 10) / 10}°C
                   </div>
                   <Progress
-                    className="h-2 mt-3"
+                    className="h-1.5 md:h-2 mt-2 md:mt-3"
                     value={Math.min(
                       100,
                       Math.max(0, ((getReading("air_temperature") ?? 24) / 40) * 100)
@@ -145,65 +147,65 @@ export default function Dashboard() {
               </Card>
 
               <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between mb-2">
+                <CardContent className="p-4 md:p-5">
+                  <div className="flex items-center justify-between mb-1.5 md:mb-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/10">
-                        <Droplets className="h-4 w-4 text-blue-400" />
+                      <span className="inline-flex h-6 w-6 md:h-7 md:w-7 items-center justify-center rounded-full bg-blue-500/10">
+                        <Droplets className="h-3.5 w-3.5 md:h-4 md:w-4 text-blue-400" />
                       </span>
-                      <span className="text-sm">Humidity</span>
+                      <span className="text-xs md:text-sm">Humidity</span>
                     </div>
-                    <span className="text-xs text-green-500">Optimal</span>
+                    <span className="text-[11px] md:text-xs text-green-500">Optimal</span>
                   </div>
-                  <div className="text-2xl font-semibold">
+                  <div className="text-xl md:text-2xl font-semibold">
                     {Math.round(getReading("humidity") ?? 58)}%
                   </div>
                   <Progress
-                    className="h-2 mt-3"
+                    className="h-1.5 md:h-2 mt-2 md:mt-3"
                     value={Math.min(100, Math.max(0, getReading("humidity") ?? 58))}
                   />
                 </CardContent>
               </Card>
 
               <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between mb-2">
+                <CardContent className="p-4 md:p-5">
+                  <div className="flex items-center justify-between mb-1.5 md:mb-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-500/10">
-                        <Sun className="h-4 w-4 text-yellow-400" />
+                      <span className="inline-flex h-6 w-6 md:h-7 md:w-7 items-center justify-center rounded-full bg-yellow-500/10">
+                        <Sun className="h-3.5 w-3.5 md:h-4 md:w-4 text-yellow-400" />
                       </span>
-                      <span className="text-sm">Leaf Wetness</span>
+                      <span className="text-xs md:text-sm">Leaf Wetness</span>
                     </div>
-                    <span className="text-xs text-amber-500">Watch</span>
+                    <span className="text-[11px] md:text-xs text-amber-500">Watch</span>
                   </div>
-                  <div className="text-2xl font-semibold">
+                  <div className="text-xl md:text-2xl font-semibold">
                     {Math.round(getReading("leaf_wetness") ?? 35)}%
                   </div>
                   <Progress
-                    className="h-2 mt-3"
+                    className="h-1.5 md:h-2 mt-2 md:mt-3"
                     value={Math.min(100, Math.max(0, getReading("leaf_wetness") ?? 35))}
                   />
                 </CardContent>
               </Card>
 
               <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between mb-2">
+                <CardContent className="p-4 md:p-5">
+                  <div className="flex items-center justify-between mb-1.5 md:mb-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500/10">
-                        <Droplets className="h-4 w-4 text-cyan-400" />
+                      <span className="inline-flex h-6 w-6 md:h-7 md:w-7 items-center justify-center rounded-full bg-cyan-500/10">
+                        <Droplets className="h-3.5 w-3.5 md:h-4 md:w-4 text-cyan-400" />
                       </span>
-                      <span className="text-sm">Soil Moisture</span>
+                      <span className="text-xs md:text-sm">Soil Moisture</span>
                     </div>
-                    <span className="text-xs text-amber-500">
-                      {( (getReading("soil_moisture") ?? 32) < 35) ? "Needs water soon" : "Good"}
+                    <span className="text-[11px] md:text-xs text-amber-500">
+                      {((getReading("soil_moisture") ?? 32) < 35) ? "Needs water soon" : "Good"}
                     </span>
                   </div>
-                  <div className="text-2xl font-semibold">
+                  <div className="text-xl md:text-2xl font-semibold">
                     {Math.round(getReading("soil_moisture") ?? 32)}%
                   </div>
                   <Progress
-                    className="h-2 mt-3"
+                    className="h-1.5 md:h-2 mt-2 md:mt-3"
                     value={Math.min(100, Math.max(0, getReading("soil_moisture") ?? 32))}
                   />
                 </CardContent>
@@ -213,16 +215,16 @@ export default function Dashboard() {
 
           {/* Forecast + Tasks */}
           {selectedField && (
-            <div className="px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="px-4 sm:px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
               <Card className="bg-card/60 border-border/70 rounded-xl shadow-sm">
-                <CardContent className="p-5">
-                  <div className="mb-3">
-                    <div className="text-lg font-semibold">Today's Forecast</div>
-                    <div className="text-xs text-muted-foreground">
+                <CardContent className="p-4 md:p-5">
+                  <div className="mb-2 md:mb-3">
+                    <div className="text-base md:text-lg font-semibold">Today's Forecast</div>
+                    <div className="text-[11px] md:text-xs text-muted-foreground">
                       May affect your outdoor plants
                     </div>
                   </div>
-                  <div className="grid grid-cols-6 gap-3 text-sm">
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 md:gap-3 text-xs md:text-sm">
                     {[
                       { t: "Now", temp: 23, icon: Sun },
                       { t: "10 AM", temp: 24, icon: Sun },
@@ -232,7 +234,7 @@ export default function Dashboard() {
                       { t: "6 PM", temp: 22, icon: CloudSun },
                     ].map((f, i) => (
                       <div key={i} className="flex flex-col items-center gap-1">
-                        <f.icon className="h-4 w-4 text-yellow-500" />
+                        <f.icon className="h-3.5 w-3.5 md:h-4 md:w-4 text-yellow-500" />
                         <div className="text-muted-foreground">{f.t}</div>
                         <div className="font-medium">{f.temp}°C</div>
                       </div>
@@ -242,21 +244,21 @@ export default function Dashboard() {
               </Card>
 
               <Card className="bg-card/60 border-border/70 rounded-xl shadow-sm">
-                <CardContent className="p-5">
-                  <div className="mb-3">
-                    <div className="text-lg font-semibold">Plant Care Tasks</div>
-                    <div className="text-xs text-muted-foreground">From active alerts</div>
+                <CardContent className="p-4 md:p-5">
+                  <div className="mb-2 md:mb-3">
+                    <div className="text-base md:text-lg font-semibold">Plant Care Tasks</div>
+                    <div className="text-[11px] md:text-xs text-muted-foreground">From active alerts</div>
                   </div>
                   <div className="divide-y divide-border">
                     {(allUserUnackedAlerts || []).slice(0, 4).map((a: any) => (
-                      <div key={a._id} className="py-3 flex items-center justify-between">
+                      <div key={a._id} className="py-2.5 md:py-3 flex items-center justify-between">
                         <div className="min-w-0">
-                          <div className="font-medium truncate">{a.title}</div>
-                          <div className="text-xs text-muted-foreground truncate">
+                          <div className="text-sm md:text-base font-medium truncate">{a.title}</div>
+                          <div className="text-[11px] md:text-xs text-muted-foreground truncate">
                             {a.description}
                           </div>
                         </div>
-                        <span className="text-xs text-green-500">Due: Today</span>
+                        <span className="text-[11px] md:text-xs text-green-500">Due: Today</span>
                       </div>
                     ))}
                     {((allUserUnackedAlerts || []).length === 0) && (
@@ -274,7 +276,7 @@ export default function Dashboard() {
           <div className="flex-1 flex flex-col lg:flex-row">
             {/* Map Canvas */}
             <motion.div 
-              className="flex-1 relative min-h-[260px] lg:min-h-0"
+              className="flex-1 relative min-h-[300px] sm:min-h-[260px] lg:min-h-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
