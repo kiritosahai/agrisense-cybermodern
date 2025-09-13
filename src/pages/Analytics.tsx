@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Thermometer, Droplets, Sun, Wind } from "lucide-react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Bell, Zap, FileText, MapPin } from "lucide-react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -250,6 +251,51 @@ export default function AnalyticsPage() {
                 <div>Leaf wetness risk overnight: <span className="text-amber-500 font-medium">elevated</span>.</div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Demo: Alerts / Jobs / Reports / Fields */}
+          <div className="px-4 sm:px-6 pb-4 max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            {[
+              {
+                title: "Demo Alerts",
+                value: Math.max(0, Math.round(2 + noise(4, 17) * 5)),
+                desc: "Active notifications requiring attention",
+                Icon: Bell,
+                color: "text-red-400",
+              },
+              {
+                title: "Demo Jobs",
+                value: Math.max(0, Math.round(1 + noise(5, 21) * 3)),
+                desc: "Background processing tasks",
+                Icon: Zap,
+                color: "text-yellow-400",
+              },
+              {
+                title: "Demo Reports",
+                value: Math.max(0, Math.round(3 + noise(6, 25) * 4)),
+                desc: "Generated summaries available",
+                Icon: FileText,
+                color: "text-emerald-400",
+              },
+              {
+                title: "Demo Fields",
+                value: Math.max(1, Math.round(1 + noise(7, 27) * 3)),
+                desc: "Managed plots in your account",
+                Icon: MapPin,
+                color: "text-sky-400",
+              },
+            ].map(({ title, value, desc, Icon, color }, i) => (
+              <Card key={i} className="bg-card border-border/60 rounded-xl shadow-sm hover:shadow-md transition-all">
+                <CardContent className="p-4 md:p-5">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">{title}</div>
+                    <Icon className={`h-4 w-4 ${color}`} />
+                  </div>
+                  <div className="mt-1 text-2xl font-semibold">{value}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{desc}</div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           {/* 24-Hour History */}
