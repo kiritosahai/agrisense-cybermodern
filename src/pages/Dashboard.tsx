@@ -96,7 +96,7 @@ export default function Dashboard() {
               <Button
                 variant="outline"
                 size="sm"
-                className="relative"
+                className="relative hover:shadow-sm"
                 onClick={() => {
                   navigate("/alerts");
                   if (unackedCount === 0) toast("No new alerts");
@@ -119,12 +119,14 @@ export default function Dashboard() {
 
           {/* Metrics Row */}
           {selectedField && (
-            <div className="px-6 py-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md transition">
+            <div className="px-6 py-4 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <Thermometer className="h-4 w-4 text-red-400" />
+                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-500/10">
+                        <Thermometer className="h-4 w-4 text-red-400" />
+                      </span>
                       <span className="text-sm">Temperature</span>
                     </div>
                     <span className="text-xs text-green-500">Optimal</span>
@@ -142,11 +144,13 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md transition">
+              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <Droplets className="h-4 w-4 text-blue-400" />
+                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/10">
+                        <Droplets className="h-4 w-4 text-blue-400" />
+                      </span>
                       <span className="text-sm">Humidity</span>
                     </div>
                     <span className="text-xs text-green-500">Optimal</span>
@@ -161,11 +165,13 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md transition">
+              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <Sun className="h-4 w-4 text-yellow-400" />
+                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-500/10">
+                        <Sun className="h-4 w-4 text-yellow-400" />
+                      </span>
                       <span className="text-sm">Leaf Wetness</span>
                     </div>
                     <span className="text-xs text-amber-500">Watch</span>
@@ -180,11 +186,13 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md transition">
+              <Card className="bg-card/70 border-border/60 backdrop-blur rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <Droplets className="h-4 w-4 text-cyan-400" />
+                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500/10">
+                        <Droplets className="h-4 w-4 text-cyan-400" />
+                      </span>
                       <span className="text-sm">Soil Moisture</span>
                     </div>
                     <span className="text-xs text-amber-500">
@@ -205,8 +213,8 @@ export default function Dashboard() {
 
           {/* Forecast + Tasks */}
           {selectedField && (
-            <div className="px-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <Card className="bg-card/60 border-border">
+            <div className="px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <Card className="bg-card/60 border-border/70 rounded-xl shadow-sm">
                 <CardContent className="p-5">
                   <div className="mb-3">
                     <div className="text-lg font-semibold">Today's Forecast</div>
@@ -233,7 +241,7 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/60 border-border">
+              <Card className="bg-card/60 border-border/70 rounded-xl shadow-sm">
                 <CardContent className="p-5">
                   <div className="mb-3">
                     <div className="text-lg font-semibold">Plant Care Tasks</div>
@@ -276,13 +284,13 @@ export default function Dashboard() {
 
             {/* Right Panel */}
             <motion.div 
-              className="w-full lg:w-96 lg:border-l border-t lg:border-t-0 border-border bg-card flex flex-col"
+              className="w-full lg:w-96 lg:border-l border-t lg:border-t-0 border-border bg-card/95 backdrop-blur flex flex-col"
               initial={{ x: 100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               {/* Time Series Panel */}
-              <div className="lg:flex-1 border-b border-border">
+              <div className="lg:flex-1 border-b border-border/70">
                 <TimeSeriesPanel selectedField={selectedField} />
               </div>
 
