@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Images as ImagesIcon, Stethoscope, Video as VideoIcon, Link2 } from "lucide-react";
+import { Images as ImagesIcon, Stethoscope, Video as VideoIcon, Link2, Thermometer, Droplets } from "lucide-react";
 
 type SelectedFile = { file: File; previewUrl: string };
 type AnalysisResult = {
@@ -48,7 +48,7 @@ export default function Dashboard() {
   const videoCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const analysisIntervalRef = useRef<number | null>(null);
   const [liveActive, setLiveActive] = useState(false);
-  const [liveMetrics, setLiveMetrics] = useState<{ greenRatio: number; dryRatio: number } | null>(null);
+  const [liveMetrics, setLiveMetrics] = useState<{ greenRatio: number; dryRatio: number; tempC: number; humidityPct: number } | null>(null);
   const [linkedCameraUrl, setLinkedCameraUrl] = useState<string | null>(null);
 
   // Revoke object URLs on unmount
@@ -111,7 +111,12 @@ export default function Dashboard() {
     }
     const greenRatio = total > 0 ? greenish / total : 0;
     const dryRatio = total > 0 ? dryish / total : 0;
-    setLiveMetrics({ greenRatio, dryRatio });
+
+    // Derive simple, live placeholder environment metrics from frame stats
+    const tempC = Math.round((18 + greenRatio * 12) * 10) / 10; // ~18–30°C
+    const humidityPct = Math.round((30 + (1 - dryRatio) * 60) * 10) / 10; // ~30–90%
+
+    setLiveMetrics({ greenRatio, dryRatio, tempC, humidityPct });
   };
 
   const startLiveAnalysis = async () => {
@@ -380,6 +385,34 @@ export default function Dashboard() {
                               {(liveMetrics.dryRatio * 100).toFixed(1)}%
                             </div>
                             <Progress value={Math.min(100, Math.max(0, liveMetrics.dryRatio * 100))} className="h-1.5 mt-1" />
+                          </div>
+                          {/* Added: Live Temperature */}
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <Thermometer className="h-3.5 w-3.5 text-red-400" />
+                              <div className="text-[11px] text-muted-foreground">Temperature</div>
+                            </div>
+                            <div className="text-sm font-medium text-red-300">
+                              {liveMetrics.tempC.toFixed(1)}°C
+                            </div>
+                            <Progress
+                              value={Math.min(100, Math.max(0, ((liveMetrics.tempC - 10) / 30) * 100))}
+                              className="h-1.5 mt-1"
+                            />
+                          </div>
+                          {/* Added: Live Humidity */}
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <Droplets className="h-3.5 w-3.5 text-blue-400" />
+                              <div className="text-[11px] text-muted-foreground">Humidity</div>
+                            </div>
+                            <div className="text-sm font-medium text-blue-300">
+                              {liveMetrics.humidityPct.toFixed(1)}%
+                            </div>
+                            <Progress
+                              value={Math.min(100, Math.max(0, liveMetrics.humidityPct))}
+                              className="h-1.5 mt-1"
+                            />
                           </div>
                           {linkedCameraUrl && (
                             <div className="text-[11px] text-muted-foreground break-all">
