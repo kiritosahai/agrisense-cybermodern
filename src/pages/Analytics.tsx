@@ -21,6 +21,22 @@ import {
   Legend,
 } from "recharts";
 
+const chartTheme = {
+  grid: "hsl(var(--border))",
+  axis: "hsl(var(--muted-foreground))",
+  legend: {
+    color: "hsl(var(--muted-foreground))",
+    fontSize: 12,
+  },
+  tooltip: {
+    bg: "hsl(var(--card))",
+    border: "1px solid hsl(var(--border))",
+    color: "hsl(var(--foreground))",
+    muted: "hsl(var(--muted-foreground))",
+    shadow: "0 8px 24px hsl(var(--background)/0.35)",
+  },
+};
+
 export default function AnalyticsPage() {
   const { isLoading, isAuthenticated, user } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -122,14 +138,15 @@ export default function AnalyticsPage() {
     return (
       <div
         style={{
-          backgroundColor: "hsl(var(--card))",
-          border: "1px solid hsl(var(--border))",
+          backgroundColor: chartTheme.tooltip.bg,
+          border: chartTheme.tooltip.border,
           borderRadius: 8,
           padding: "8px 10px",
           fontSize: 12,
+          boxShadow: chartTheme.tooltip.shadow,
         }}
       >
-        <div style={{ marginBottom: 4, color: "hsl(var(--muted-foreground))" }}>{label}</div>
+        <div style={{ marginBottom: 4, color: chartTheme.tooltip.muted }}>{label}</div>
         {items.map((p: any, idx: number) => {
           const val = p?.value;
           const name = p?.name || p?.dataKey;
@@ -137,8 +154,8 @@ export default function AnalyticsPage() {
           return (
             <div key={idx} style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ display: "inline-block", width: 8, height: 8, background: color, borderRadius: 9999 }} />
-              <span style={{ color: "hsl(var(--foreground))" }}>{name}:</span>
-              <span style={{ color: val == null ? "hsl(var(--muted-foreground))" : "hsl(var(--foreground))" }}>
+              <span style={{ color: chartTheme.tooltip.color }}>{name}:</span>
+              <span style={{ color: val == null ? chartTheme.tooltip.muted : chartTheme.tooltip.color }}>
                 {val == null ? "No data" : val}
               </span>
             </div>
@@ -231,11 +248,11 @@ export default function AnalyticsPage() {
               <CardContent className="h-[300px] md:h-[360px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={fake24hData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="hour" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} />
+                    <XAxis dataKey="hour" stroke={chartTheme.axis} fontSize={12} tickLine={false} />
+                    <YAxis stroke={chartTheme.axis} fontSize={12} tickLine={false} />
                     <Tooltip content={<MissingAwareTooltip />} />
-                    <Legend />
+                    <Legend wrapperStyle={{ color: chartTheme.legend.color, fontSize: chartTheme.legend.fontSize }} />
                     <Line type="monotone" dataKey="temperature" name="Temperature (°F)" stroke="#6b8afd" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
                     <Line type="monotone" dataKey="humidity" name="Humidity (%)" stroke="#34d399" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
                     <Line type="monotone" dataKey="wind" name="Wind (mph)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
@@ -254,11 +271,11 @@ export default function AnalyticsPage() {
               <CardContent className="h-[300px] md:h-[360px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={fake7dData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} />
+                    <XAxis dataKey="day" stroke={chartTheme.axis} fontSize={12} tickLine={false} />
+                    <YAxis stroke={chartTheme.axis} fontSize={12} tickLine={false} />
                     <Tooltip content={<MissingAwareTooltip />} />
-                    <Legend />
+                    <Legend wrapperStyle={{ color: chartTheme.legend.color, fontSize: chartTheme.legend.fontSize }} />
                     <Line type="monotone" dataKey="temperatureAvg" name="Avg Temperature (°F)" stroke="#6b8afd" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
                     <Line type="monotone" dataKey="humidityAvg" name="Avg Humidity (%)" stroke="#34d399" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
                     <Line type="monotone" dataKey="windAvg" name="Avg Wind (mph)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
