@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import {
@@ -99,6 +99,9 @@ export default function Landing() {
 
   // Add backend action hook for analysis
   const computeMetrics = useAction(api.analysis.computeMetrics);
+
+  // Add: ref to trigger file chooser for "Upload Plant" prompt
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Revoke object URLs on unmount
   useEffect(() => {
@@ -361,6 +364,7 @@ export default function Landing() {
                   <span className="text-sm font-medium">Upload Images</span>
                 </div>
                 <Input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   multiple
@@ -398,115 +402,139 @@ export default function Landing() {
               {/* Results grid */}
               {results.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {results.map((r: AnalysisResult, i: number) => (
-                    <Card key={i} className="border-border/70 hover:border-green-500/40 transition-colors">
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-3">
-                          <img
-                            src={r.previewUrl}
-                            alt={r.fileName}
-                            className="w-24 h-24 object-cover rounded-md border border-border/60"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <div className="text-sm font-semibold truncate">{r.fileName}</div>
-                              <Badge
-                                variant="secondary"
-                                className={`text-xs ${
-                                  r.healthCondition === "Healthy"
-                                    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
-                                    : r.healthCondition === "Moderate"
-                                    ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/30"
-                                    : "bg-red-500/15 text-red-400 border-red-500/30"
-                                }`}
-                              >
-                                {r.healthCondition}
-                              </Badge>
-                            </div>
-                            <div className="mt-1 text-xs text-muted-foreground">
-                              Plant: <span className="text-foreground">{r.plantName}</span>
-                            </div>
-                            <div className="mt-1 text-xs text-muted-foreground">
-                              Growth Stage: <span className="text-foreground">{r.growthStage}</span>
-                            </div>
-                          </div>
-                        </div>
+                  {results.map((r: AnalysisResult, i: number) => {
+                    // Add: simple heuristic to detect non-plant images
+                    const isNonPlant = r.greenRatio < 0.05 && r.dryRatio < 0.05;
 
-                        <div className="mt-4 grid grid-cols-2 gap-3">
-                          <div className="rounded-lg border border-border/60 p-2">
-                            <div className="text-[11px] text-muted-foreground mb-1">Green Coverage</div>
-                            <div className="text-sm font-medium text-green-400">
-                              {(r.greenRatio * 100).toFixed(1)}%
+                    return (
+                      <Card key={i} className="border-border/70 hover:border-green-500/40 transition-colors">
+                        <CardContent className="p-4">
+                          {/* Add: Non-plant notice */}
+                          {isNonPlant && (
+                            <div className="mb-3 rounded-md border border-red-500/30 bg-red-500/10 p-2">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-xs text-red-300">
+                                  This image doesn't appear to be a plant or crop.
+                                </span>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 px-2 text-xs"
+                                  onClick={() => fileInputRef.current?.click()}
+                                >
+                                  Upload Plant
+                                </Button>
+                              </div>
                             </div>
-                            <Progress value={Math.min(100, Math.max(0, r.greenRatio * 100))} className="h-1.5 mt-1" />
-                          </div>
-                          <div className="rounded-lg border border-border/60 p-2">
-                            <div className="text-[11px] text-muted-foreground mb-1">Dry Coverage</div>
-                            <div className="text-sm font-medium text-amber-400">
-                              {(r.dryRatio * 100).toFixed(1)}%
-                            </div>
-                            <Progress value={Math.min(100, Math.max(0, r.dryRatio * 100))} className="h-1.5 mt-1" />
-                          </div>
-                        </div>
-
-                        <div className="mt-3 grid grid-cols-2 gap-3">
-                          <div className="rounded-lg border border-border/60 p-2">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Thermometer className="h-3.5 w-3.5 text-red-400" />
-                              <div className="text-[11px] text-muted-foreground">Temperature</div>
-                            </div>
-                            <div className="text-sm font-medium text-red-300">
-                              {r.tempC.toFixed(1)}°C
-                            </div>
-                            <Progress
-                              value={Math.min(100, Math.max(0, ((r.tempC - 10) / 30) * 100))}
-                              className="h-1.5 mt-1"
-                            />
-                          </div>
-                          <div className="rounded-lg border border-border/60 p-2">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Droplets className="h-3.5 w-3.5 text-blue-400" />
-                              <div className="text-[11px] text-muted-foreground">Humidity</div>
-                            </div>
-                            <div className="text-sm font-medium text-blue-300">
-                              {r.humidityPct.toFixed(1)}%
-                            </div>
-                            <Progress
-                              value={Math.min(100, Math.max(0, r.humidityPct))}
-                              className="h-1.5 mt-1"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="mt-4">
-                          <div className="text-xs font-medium flex items-center gap-2 mb-1">
-                            <Stethoscope className="h-3.5 w-3.5 text-green-400" />
-                            Possible Diseases (placeholder)
-                          </div>
-                          {r.possibleDiseases.length > 0 ? (
-                            <div className="flex flex-wrap gap-2">
-                              {r.possibleDiseases.map((d: string, idx: number) => (
-                                <Badge key={idx} variant="outline" className="text-xs">
-                                  {d}
-                                </Badge>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="text-xs text-muted-foreground">None detected</div>
                           )}
-                        </div>
 
-                        {/* Placeholder for future AI integration */}
-                        <div className="mt-4 rounded-md border border-green-500/20 bg-green-500/5 p-3">
-                          <div className="text-xs font-medium text-green-400 mb-1">AI Insights (coming soon)</div>
-                          <p className="text-xs text-muted-foreground">
-                            This section will be powered by advanced plant disease and variety models to provide
-                            detailed diagnostics and recommendations.
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                          <div className="flex items-start gap-3">
+                            <img
+                              src={r.previewUrl}
+                              alt={r.fileName}
+                              className="w-24 h-24 object-cover rounded-md border border-border/60"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <div className="text-sm font-semibold truncate">{r.fileName}</div>
+                                <Badge
+                                  variant="secondary"
+                                  className={`text-xs ${
+                                    r.healthCondition === "Healthy"
+                                      ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                      : r.healthCondition === "Moderate"
+                                      ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/30"
+                                      : "bg-red-500/15 text-red-400 border-red-500/30"
+                                  }`}
+                                >
+                                  {r.healthCondition}
+                                </Badge>
+                              </div>
+                              <div className="mt-1 text-xs text-muted-foreground">
+                                Plant: <span className="text-foreground">{r.plantName}</span>
+                              </div>
+                              <div className="mt-1 text-xs text-muted-foreground">
+                                Growth Stage: <span className="text-foreground">{r.growthStage}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 grid grid-cols-2 gap-3">
+                            <div className="rounded-lg border border-border/60 p-2">
+                              <div className="text-[11px] text-muted-foreground mb-1">Green Coverage</div>
+                              <div className="text-sm font-medium text-green-400">
+                                {(r.greenRatio * 100).toFixed(1)}%
+                              </div>
+                              <Progress value={Math.min(100, Math.max(0, r.greenRatio * 100))} className="h-1.5 mt-1" />
+                            </div>
+                            <div className="rounded-lg border border-border/60 p-2">
+                              <div className="text-[11px] text-muted-foreground mb-1">Dry Coverage</div>
+                              <div className="text-sm font-medium text-amber-400">
+                                {(r.dryRatio * 100).toFixed(1)}%
+                              </div>
+                              <Progress value={Math.min(100, Math.max(0, r.dryRatio * 100))} className="h-1.5 mt-1" />
+                            </div>
+                          </div>
+
+                          <div className="mt-3 grid grid-cols-2 gap-3">
+                            <div className="rounded-lg border border-border/60 p-2">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Thermometer className="h-3.5 w-3.5 text-red-400" />
+                                <div className="text-[11px] text-muted-foreground">Temperature</div>
+                              </div>
+                              <div className="text-sm font-medium text-red-300">
+                                {r.tempC.toFixed(1)}°C
+                              </div>
+                              <Progress
+                                value={Math.min(100, Math.max(0, ((r.tempC - 10) / 30) * 100))}
+                                className="h-1.5 mt-1"
+                              />
+                            </div>
+                            <div className="rounded-lg border border-border/60 p-2">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Droplets className="h-3.5 w-3.5 text-blue-400" />
+                                <div className="text-[11px] text-muted-foreground">Humidity</div>
+                              </div>
+                              <div className="text-sm font-medium text-blue-300">
+                                {r.humidityPct.toFixed(1)}%
+                              </div>
+                              <Progress
+                                value={Math.min(100, Math.max(0, r.humidityPct))}
+                                className="h-1.5 mt-1"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="mt-4">
+                            <div className="text-xs font-medium flex items-center gap-2 mb-1">
+                              <Stethoscope className="h-3.5 w-3.5 text-green-400" />
+                              Possible Diseases (placeholder)
+                            </div>
+                            {r.possibleDiseases.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {r.possibleDiseases.map((d: string, idx: number) => (
+                                  <Badge key={idx} variant="outline" className="text-xs">
+                                    {d}
+                                  </Badge>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-xs text-muted-foreground">None detected</div>
+                            )}
+                          </div>
+
+                          {/* Placeholder for future AI integration */}
+                          <div className="mt-4 rounded-md border border-green-500/20 bg-green-500/5 p-3">
+                            <div className="text-xs font-medium text-green-400 mb-1">AI Insights (coming soon)</div>
+                            <p className="text-xs text-muted-foreground">
+                              This section will be powered by advanced plant disease and variety models to provide
+                              detailed diagnostics and recommendations.
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
