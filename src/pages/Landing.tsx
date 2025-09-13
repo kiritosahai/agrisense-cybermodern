@@ -37,6 +37,8 @@ type AnalysisResult = {
   healthCondition: "Healthy" | "Moderate" | "Stressed";
   growthStage: "Seedling" | "Vegetative" | "Flowering" | "Maturation";
   possibleDiseases: string[];
+  tempC: number;
+  humidityPct: number;
 };
 
 const features = [
@@ -90,6 +92,8 @@ export default function Landing() {
       healthCondition: "Healthy" | "Moderate" | "Stressed";
       growthStage: "Seedling" | "Vegetative" | "Flowering" | "Maturation";
       possibleDiseases: string[];
+      tempC: number;
+      humidityPct: number;
     }>
   >([]);
 
@@ -170,6 +174,9 @@ export default function Landing() {
       const computed = await Promise.all(
         selectedFiles.map(async (f: SelectedFile) => {
           const res = await analyzeImage(f.previewUrl);
+          // Derive simple environmental metrics from coverage ratios
+          const tempC = Math.round((18 + res.greenRatio * 12) * 10) / 10; // ~18–30°C
+          const humidityPct = Math.round((30 + (1 - res.dryRatio) * 60) * 10) / 10; // ~30–90%
           return {
             fileName: f.file.name,
             previewUrl: f.previewUrl,
@@ -179,6 +186,8 @@ export default function Landing() {
             healthCondition: res.healthCondition,
             growthStage: res.growthStage,
             possibleDiseases: res.possibleDiseases,
+            tempC,
+            humidityPct,
           };
         })
       );
@@ -437,6 +446,35 @@ export default function Landing() {
                               {(r.dryRatio * 100).toFixed(1)}%
                             </div>
                             <Progress value={Math.min(100, Math.max(0, r.dryRatio * 100))} className="h-1.5 mt-1" />
+                          </div>
+                        </div>
+
+                        <div className="mt-3 grid grid-cols-2 gap-3">
+                          <div className="rounded-lg border border-border/60 p-2">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Thermometer className="h-3.5 w-3.5 text-red-400" />
+                              <div className="text-[11px] text-muted-foreground">Temperature</div>
+                            </div>
+                            <div className="text-sm font-medium text-red-300">
+                              {r.tempC.toFixed(1)}°C
+                            </div>
+                            <Progress
+                              value={Math.min(100, Math.max(0, ((r.tempC - 10) / 30) * 100))}
+                              className="h-1.5 mt-1"
+                            />
+                          </div>
+                          <div className="rounded-lg border border-border/60 p-2">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Droplets className="h-3.5 w-3.5 text-blue-400" />
+                              <div className="text-[11px] text-muted-foreground">Humidity</div>
+                            </div>
+                            <div className="text-sm font-medium text-blue-300">
+                              {r.humidityPct.toFixed(1)}%
+                            </div>
+                            <Progress
+                              value={Math.min(100, Math.max(0, r.humidityPct))}
+                              className="h-1.5 mt-1"
+                            />
                           </div>
                         </div>
 
