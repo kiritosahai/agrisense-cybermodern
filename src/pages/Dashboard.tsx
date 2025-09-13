@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Images as ImagesIcon, Stethoscope, Video as VideoIcon, Link2, Thermometer, Droplets } from "lucide-react";
+import { useAction } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 type SelectedFile = { file: File; previewUrl: string };
 type AnalysisResult = {
@@ -42,6 +44,9 @@ export default function Dashboard() {
   >([]);
   // Add camera input ref for in-app capture
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Add backend action hook for analysis
+  const computeMetrics = useAction(api.analysis.computeMetrics);
 
   // Live video analysis state/refs
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -184,48 +189,22 @@ export default function Dashboard() {
     ctx.drawImage(img, 0, 0, w, h);
 
     const { data } = ctx.getImageData(0, 0, w, h);
-    let greenish = 0;
-    let dryish = 0;
-    let total = 0;
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-      const a = data[i + 3];
-      if (a < 20) continue;
-      total++;
-      if (g > r && g > b && g > 60) greenish++;
-      if (r > g && r > b && r > 80) dryish++;
-    }
-    const greenRatio = total > 0 ? greenish / total : 0;
-    const dryRatio = total > 0 ? dryish / total : 0;
 
-    const healthCondition: "Healthy" | "Moderate" | "Stressed" =
-      greenRatio >= 0.6 && dryRatio < 0.2
-        ? "Healthy"
-        : greenRatio >= 0.35 && dryRatio < 0.35
-        ? "Moderate"
-        : "Stressed";
+    // Delegate analysis to backend
+    const res = await computeMetrics({
+      rgba: data.buffer,
+      width: w,
+      height: h,
+    });
 
-    const growthStage: "Seedling" | "Vegetative" | "Flowering" | "Maturation" =
-      greenRatio > 0.65
-        ? "Vegetative"
-        : greenRatio > 0.5
-        ? "Flowering"
-        : greenRatio > 0.35
-        ? "Maturation"
-        : "Seedling";
-
-    const possibleDiseases: string[] = [];
-    if (dryRatio > 0.35) possibleDiseases.push("Drought Stress");
-    if (greenRatio < 0.3) possibleDiseases.push("Nutrient Deficiency");
-    if (greenRatio >= 0.3 && greenRatio < 0.5 && dryRatio >= 0.2)
-      possibleDiseases.push("Leaf Scorch (placeholder)");
-
-    const names = ["Maize (placeholder)", "Wheat (placeholder)", "Soybean (placeholder)", "Tomato (placeholder)"];
-    const plantName = names[Math.floor(greenRatio * names.length)] || "Unknown (placeholder)";
-
-    return { greenRatio, dryRatio, healthCondition, growthStage, possibleDiseases, plantName };
+    return {
+      greenRatio: res.greenRatio,
+      dryRatio: res.dryRatio,
+      healthCondition: res.healthCondition,
+      growthStage: res.growthStage,
+      possibleDiseases: res.possibleDiseases,
+      plantName: res.plantName,
+    };
   };
 
   const analyzeAll = async () => {

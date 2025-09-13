@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
+import { useAction } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import {
   Satellite,
   BarChart3,
@@ -91,11 +93,14 @@ export default function Landing() {
     }>
   >([]);
 
+  // Add backend action hook for analysis
+  const computeMetrics = useAction(api.analysis.computeMetrics);
+
   // Revoke object URLs on unmount
   useEffect(() => {
     return () => {
-selectedFiles.forEach((f: SelectedFile) => URL.revokeObjectURL(f.previewUrl));
-results.forEach((r: AnalysisResult) => URL.revokeObjectURL(r.previewUrl));
+      selectedFiles.forEach((f: SelectedFile) => URL.revokeObjectURL(f.previewUrl));
+      results.forEach((r: AnalysisResult) => URL.revokeObjectURL(r.previewUrl));
     };
   }, [selectedFiles, results]);
 
@@ -113,13 +118,13 @@ results.forEach((r: AnalysisResult) => URL.revokeObjectURL(r.previewUrl));
   };
 
   const analyzeImage = async (previewUrl: string): Promise<{
-  greenRatio: number;
-  dryRatio: number;
-  plantName: string;
-  healthCondition: "Healthy" | "Moderate" | "Stressed";
-  growthStage: "Seedling" | "Vegetative" | "Flowering" | "Maturation";
-  possibleDiseases: string[];
-}> => {
+    greenRatio: number;
+    dryRatio: number;
+    plantName: string;
+    healthCondition: "Healthy" | "Moderate" | "Stressed";
+    growthStage: "Seedling" | "Vegetative" | "Flowering" | "Maturation";
+    possibleDiseases: string[];
+  }> => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = previewUrl;
@@ -141,49 +146,21 @@ results.forEach((r: AnalysisResult) => URL.revokeObjectURL(r.previewUrl));
     ctx.drawImage(img, 0, 0, w, h);
 
     const { data } = ctx.getImageData(0, 0, w, h);
-    let greenish = 0;
-    let dryish = 0;
-    let total = 0;
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-      const a = data[i + 3];
-      if (a < 20) continue;
-      total++;
-      if (g > r && g > b && g > 60) greenish++;
-      if (r > g && r > b && r > 80) dryish++;
-    }
-    const greenRatio = total > 0 ? greenish / total : 0;
-    const dryRatio = total > 0 ? dryish / total : 0;
 
-    // Simple placeholder inference
-    const healthCondition: "Healthy" | "Moderate" | "Stressed" =
-      greenRatio >= 0.6 && dryRatio < 0.2
-        ? "Healthy"
-        : greenRatio >= 0.35 && dryRatio < 0.35
-        ? "Moderate"
-        : "Stressed";
+    const res = await computeMetrics({
+      rgba: data.buffer,
+      width: w,
+      height: h,
+    });
 
-    const growthStage: "Seedling" | "Vegetative" | "Flowering" | "Maturation" =
-      greenRatio > 0.65
-        ? "Vegetative"
-        : greenRatio > 0.5
-        ? "Flowering"
-        : greenRatio > 0.35
-        ? "Maturation"
-        : "Seedling";
-
-    const possibleDiseases: string[] = [];
-    if (dryRatio > 0.35) possibleDiseases.push("Drought Stress");
-    if (greenRatio < 0.3) possibleDiseases.push("Nutrient Deficiency");
-    if (greenRatio >= 0.3 && greenRatio < 0.5 && dryRatio >= 0.2) possibleDiseases.push("Leaf Scorch (placeholder)");
-
-    // Placeholder plant name guess
-    const names = ["Maize (placeholder)", "Wheat (placeholder)", "Soybean (placeholder)", "Tomato (placeholder)"];
-    const plantName = names[Math.floor(greenRatio * names.length)] || "Unknown (placeholder)";
-
-    return { greenRatio, dryRatio, healthCondition, growthStage, possibleDiseases, plantName };
+    return {
+      greenRatio: res.greenRatio,
+      dryRatio: res.dryRatio,
+      healthCondition: res.healthCondition,
+      growthStage: res.growthStage,
+      possibleDiseases: res.possibleDiseases,
+      plantName: res.plantName,
+    };
   };
 
   const analyzeAll = async () => {

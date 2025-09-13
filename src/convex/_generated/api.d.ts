@@ -14,6 +14,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as alerts from "../alerts.js";
+import type * as analysis from "../analysis.js";
 import type * as auth_emailOtp from "../auth/emailOtp.js";
 import type * as auth from "../auth.js";
 import type * as fields from "../fields.js";
@@ -34,6 +35,7 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   alerts: typeof alerts;
+  analysis: typeof analysis;
   "auth/emailOtp": typeof auth_emailOtp;
   auth: typeof auth;
   fields: typeof fields;
