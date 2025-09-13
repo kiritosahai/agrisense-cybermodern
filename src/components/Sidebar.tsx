@@ -58,8 +58,8 @@ export function Sidebar({ collapsed, onToggle, user }: SidebarProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <img src="https://harmless-tapir-303.convex.cloud/api/storage/dcab8a5a-6b8f-4af4-ad86-e3468d917e90" alt="AgriSense" className="w-8 h-8" />
-              <span className="font-bold text-lg tracking-tight">AgriSense</span>
+              <img src="https://harmless-tapir-303.convex.cloud/api/storage/dcab8a5a-6b8f-4af4-ad86-e3468d917e90" alt="Agri-Spectra" className="w-8 h-8" />
+              <span className="font-bold text-lg tracking-tight">Agri-Spectra</span>
             </motion.div>
           )}
           <Button
