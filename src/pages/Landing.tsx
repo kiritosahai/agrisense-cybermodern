@@ -273,7 +273,7 @@ export default function Landing() {
                 </Button>
                 <Button variant="outline" size="lg" asChild>
                   <a
-                    href="https://youtu.be/Nup3-Ewpb7k"
+                    href="https://www.youtube.com/watch?v=Nup3-Ewpb7k&ab_channel=Harsheyz"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
