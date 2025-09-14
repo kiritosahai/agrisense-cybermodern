@@ -271,8 +271,14 @@ export default function Landing() {
                 >
                   Go to Dashboard
                 </Button>
-                <Button variant="outline" size="lg">
-                  Watch Demo
+                <Button variant="outline" size="lg" asChild>
+                  <a
+                    href="https://youtu.be/Nup3-Ewpb7k"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Watch Demo
+                  </a>
                 </Button>
               </div>
             </div>
